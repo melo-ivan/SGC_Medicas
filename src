@@ -1,0 +1,95 @@
+-- Cria um novo banco de dados chamado clinica_medica
+CREATE DATABASE clinica_medica;
+
+-- Seleciona o banco de dados clinica_medica para que todos os comandos SQL seguintes sejam executados dentro dele
+USE clinica_medica;
+
+-- Cria a tabela Pacientes no banco de dados clinica_medica
+CREATE TABLE pacientes (
+    id_paciente INT AUTO_INCREMENT PRIMARY KEY, -- Cria um campo id_paciente como chave primária com incremento automático
+    nome VARCHAR(100) NOT NULL, -- Cria um campo nome para armazenar o nome do paciente com um máximo de 100 caracteres e não pode ser nulo
+    data_nascimento DATE NOT NULL, -- Cria um campo data_nascimento para armazenar a data de nascimento do paciente e não pode ser nulo
+    telefone VARCHAR(15), -- Cria um campo telefone para armazenar o telefone do paciente com um máximo de 15 caracteres
+    endereco VARCHAR(255) -- Cria um campo endereco para armazenar o endereço do paciente com um máximo de 255 caracteres
+);
+
+-- Cria a tabela Médicos no banco de dados clinica_medica
+CREATE TABLE medicos (
+    id_medico INT AUTO_INCREMENT PRIMARY KEY, -- Cria um campo id_medico como chave primária com incremento automático
+    nome VARCHAR(100) NOT NULL, -- Cria um campo nome para armazenar o nome do médico com um máximo de 100 caracteres e não pode ser nulo
+    especialidade VARCHAR(50), -- Cria um campo especialidade para armazenar a especialidade do médico com um máximo de 50 caracteres
+    telefone VARCHAR(15), -- Cria um campo telefone para armazenar o telefone do médico com um máximo de 15 caracteres
+    crm VARCHAR(20) UNIQUE NOT NULL -- Cria um campo crm para armazenar o número do CRM do médico, com um máximo de 20 caracteres, deve ser único e não pode ser nulo
+);
+
+-- Cria a tabela Consultas no banco de dados clinica_medica
+CREATE TABLE consultas (
+    id_consulta INT AUTO_INCREMENT PRIMARY KEY, -- Cria um campo id_consulta como chave primária com incremento automático
+    id_paciente INT, -- Cria um campo id_paciente para referenciar o paciente associado à consulta
+    id_medico INT, -- Cria um campo id_medico para referenciar o médico associado à consulta
+    data_consulta DATE NOT NULL, -- Cria um campo data_consulta para armazenar a data da consulta e não pode ser nulo
+    hora_consulta TIME NOT NULL, -- Cria um campo hora_consulta para armazenar a hora da consulta e não pode ser nulo
+    observacoes TEXT, -- Cria um campo observacoes para armazenar quaisquer observações adicionais sobre a consulta
+    FOREIGN KEY (id_paciente) REFERENCES pacientes(id_paciente), -- Define id_paciente como chave estrangeira referenciando a tabela pacientes
+    FOREIGN KEY (id_medico) REFERENCES medicos(id_medico) -- Define id_medico como chave estrangeira referenciando a tabela medicos
+);
+
+-- Insere dados na tabela Pacientes
+INSERT INTO pacientes (nome, data_nascimento, telefone, endereco)
+VALUES ('João da Silva', '1985-04-23', '11987654321', 'Rua das Flores, 123'),
+       ('Maria Oliveira', '1990-11-15', '11976543210', 'Avenida Brasil, 456'),
+       ('Carlos Souza', '1978-02-28', '1134567890', 'Praça da República, 789'),
+       ('Ana Santos', '1982-09-10', '1187654321', 'Rua do Comércio, 101'),
+       ('Juliana Pereira', '1995-12-05', '11912345678', 'Rua Nova, 202');
+
+-- Insere dados na tabela Médicos
+INSERT INTO medicos (nome, especialidade, telefone, crm)
+VALUES ('Dr. Pedro Almeida', 'Cardiologia', '11912345678', 'CRM12345'),
+       ('Dra. Laura Martins', 'Pediatria', '11987654321', 'CRM67890'),
+       ('Dr. Ricardo Silva', 'Ortopedia', '1187654321', 'CRM11223'),
+       ('Dra. Fernanda Costa', 'Ginecologia', '11923456789', 'CRM44556'),
+       ('Dr. Bruno Lima', 'Oftalmologia', '1134567890', 'CRM77889');
+
+-- Insere dados na tabela Consultas
+INSERT INTO consultas (id_paciente, id_medico, data_consulta, hora_consulta, observacoes)
+VALUES (1, 1, '2024-08-20', '09:00:00', 'Consulta de rotina.'),
+       (2, 2, '2024-08-21', '10:30:00', 'Primeira consulta.'),
+       (3, 3, '2024-08-22', '11:00:00', 'Dor nas costas.'),
+       (4, 4, '2024-08-23', '14:00:00', 'Exame de acompanhamento.'),
+       (5, 5, '2024-08-24', '15:00:00', 'Check-up anual.');
+
+-- Consulta os pacientes que têm consultas agendadas para uma determinada data
+SELECT p.nome AS paciente, c.data_consulta, c.hora_consulta
+FROM consultas c
+JOIN pacientes p ON c.id_paciente = p.id_paciente
+WHERE c.data_consulta = '2024-08-20';
+
+-- Consulta os médicos que têm consultas agendadas em uma determinada data
+SELECT m.nome AS medico, c.data_consulta, c.hora_consulta
+FROM consultas c
+JOIN medicos m ON c.id_medico = m.id_medico
+WHERE c.data_consulta = '2024-08-20';
+
+-- Lista todas as consultas realizadas por um determinado paciente
+SELECT c.data_consulta, c.hora_consulta, m.nome AS medico, c.observacoes
+FROM consultas c
+JOIN medicos m ON c.id_medico = m.id_medico
+WHERE c.id_paciente = 1;
+
+-- Atualiza o telefone do paciente com id_paciente = 1
+UPDATE pacientes
+SET telefone = '11900000000'
+WHERE id_paciente = 1;
+
+-- Atualiza a especialidade do médico com id_medico = 2
+UPDATE medicos
+SET especialidade = 'Neurologia'
+WHERE id_medico = 2;
+
+-- Exclui a consulta com id_consulta = 3
+DELETE FROM consultas
+WHERE id_consulta = 3;
+
+-- Exclui o paciente com id_paciente = 5
+DELETE FROM pacientes
+WHERE id_paciente = 5;
